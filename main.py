@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Body, Response
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from utils import generate
 
@@ -18,13 +19,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+class Req(BaseModel):
+    prompt: str
+
+
 @app.post('/gemini')
-def run(payload: dict = Body(...)):
-    prompt = payload.get('prompt')
+def run(req: Req):
 
-    if not prompt:
-        return {'error': 'Missing prompt in request payload'}
-
-    response = generate(prompt)
-
-    return {response: response}
+    response = generate(req.prompt)
+    print(">>>>>>", response.text)
+    return {"response": response.text}
